@@ -1,0 +1,13 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.vite/
+
+# 本地临时文件
+*.local
+.DS_Store
+Thumbs.db
+
+# 需求说明书不上传（仓库只放代码）
+/需求说明书.docx
+/需求说明书.md
