@@ -1,0 +1,33 @@
+# 城市交通轨迹大数据分析平台 · 后端依赖（需求文档：requirements.txt # 16 个依赖）
+#
+# 运行环境：本地 Python 3.11+ / Docker 镜像 python:3.11-slim
+#   数值类依赖（numpy / pandas / scikit-learn / scipy / pyarrow）用 >= 下界，
+#   以同时兼容 Python 3.11（Docker）与 3.13（本机 Anaconda）。
+#   Web/ORM 类依赖用 ~= 锁次版本，避免 FastAPI/Pydantic v2 大版本切换带来破坏性改动。
+#   需要完全可复现的构建时：pip install -r requirements.txt && pip freeze > requirements.lock
+
+# ---- Web 框架（app/main.py：FastAPI + CORS + startup/shutdown）----
+fastapi~=0.115
+uvicorn[standard]~=0.32
+
+# ---- 配置与请求/响应模型（app/config.py、app/schemas/*）----
+pydantic~=2.9
+pydantic-settings~=2.6
+python-multipart~=0.0.12          # /api/data-source 上传 CSV/GeoJSON 的表单解析
+
+# ---- 数据库（app/core/database.py：engine + SessionLocal + Base + bulk_insert_mappings）----
+SQLAlchemy~=2.0
+PyMySQL~=1.1                      # MySQL 8.0 驱动（生产）；本地开发走 SQLite 无需驱动
+cryptography~=43.0                # MySQL 8 caching_sha2_password 认证必需
+
+# ---- 数据处理与算法（app/services/*）----
+numpy>=2.1                        # HMM 发射/转移矩阵、维特比解码、全向量化清洗
+pandas>=2.2.3                     # 5min groupby 路段指标、OD 聚合
+python-dateutil>=2.9              # time_window 时间戳截断与解析
+pyarrow>=17                       # trajectory_parser 解析 Parquet
+scikit-learn>=1.5                 # hotzone_service 的 DBSCAN 聚类
+scipy>=1.14                       # 空间距离与稀疏矩阵运算
+shapely>=2.0                      # road_loader 解析 WKT LINESTRING / GeoJSON、候选路段查询
+
+# ---- 定时调度（app/services/scheduler.py）----
+APScheduler~=3.10

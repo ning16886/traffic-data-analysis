@@ -8,6 +8,24 @@ dist/
 .DS_Store
 Thumbs.db
 
-# 需求说明书不上传（仓库只放代码）
-/需求说明书.docx
-/需求说明书.md
+# 环境变量本地覆盖
+.env
+
+# 需求文档与数据集不上传（仓库只放代码）
+/docs/
+/data/
+
+# Python 运行产物
+__pycache__/
+*.pyc
+
+# 后端运行期落盘的数据不上传，只保留空目录
+/backend/data/uploads/*
+!/backend/data/uploads/.gitkeep
+/backend/traffic.db
+
+# 本地运行日志与临时文件不上传
+*.tmp
+
+# 另一个 AI 工具在本目录留下的草稿/记忆文件，不是项目代码
+.workbuddy/
