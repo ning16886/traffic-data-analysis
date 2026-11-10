@@ -1,0 +1,4 @@
+﻿id,name,type,description,status,vehicle_count,point_count,created_at
+1,出租车,taxi,,1,3,352,
+2,网约车,ridehailing,,1,2,224,
+3,共享单车,bikeshare,,1,2,264,

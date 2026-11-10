@@ -11,9 +11,14 @@ Thumbs.db
 # 环境变量本地覆盖
 .env
 
-# 需求文档与数据集不上传（仓库只放代码）
-/docs/
-/data/
+# 需求文档与数据集：默认不进仓库，点名放行的才进。
+# 写法必须是 /docs/* 而不是 /docs/ —— 目录整体被忽略时，git 不会走进去找文件，
+# 里面单条 ! 放行是不生效的。
+/data/*
+!/data/raw/
+/docs/*
+!/docs/项目需求markdown版.md
+!/docs/项目演示结果.mp4
 
 # Python 运行产物
 __pycache__/
