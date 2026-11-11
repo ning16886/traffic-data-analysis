@@ -1,10 +1,13 @@
-"""原始数据导入：把仓库根 data/raw 的八张 CSV 灌进数据库。
+"""原始数据导入：把仓库根 data/raw 的八张表灌进数据库。
 
 用法（在哪个目录跑都行，路径一律绝对解析）：
     python backend/scripts/import_raw_data.py
 
 需求口径已变更为「一切以原始数据为准」：这八张表就是 data/raw 的纯投影，
 每次运行先重建表再插，重跑即刷新；本脚本不生成、不修改、不补算任何数据。
+
+文件优先读明文 .csv（50 万点数据集实测：八张表展开约 163 MB），
+没有 .csv 时退回 .csv.gz。入库按 2 万行分块提交，实测合计 1,498,361 行 / 75.5s。
 
 一个刻意的例外：data_source 的 vehicle_count / point_count 按 CSV 原样入库，
 不调 trajectory_parser.refresh_source_stats 按实测重算——那张表本身就是原始数据。
@@ -13,6 +16,7 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -58,13 +62,27 @@ def build_records(df: pd.DataFrame, table) -> list[dict]:
     return [dict(zip(names, row)) for row in zip(*values.values())]
 
 
+CHUNK_ROWS = 20_000
+
+
+def resolve_path(table) -> Path:
+    """优先 .csv，退回 .csv.gz。数据集口径为明文 CSV，压缩包只是历史兼容。"""
+    plain = settings.raw_dir / f"{table.name}.csv"
+    if plain.exists():
+        return plain
+    gz = settings.raw_dir / f"{table.name}.csv.gz"
+    if gz.exists():
+        return gz
+    raise FileNotFoundError(f"原始数据文件不存在：{plain} 或 {gz}")
+
+
 def import_table(db, table) -> tuple[int, int]:
-    path = settings.raw_dir / f"{table.name}.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"原始数据文件不存在：{path}")
+    path = resolve_path(table)
     df = pd.read_csv(path, encoding="utf-8-sig")
-    db.execute(table.insert(), build_records(df, table))
-    db.commit()
+    for i in range(0, len(df), CHUNK_ROWS):
+        db.execute(table.insert(), build_records(df.iloc[i:i + CHUNK_ROWS], table))
+        db.commit()
+        print(f"    {table.name:<18}{min(i + CHUNK_ROWS, len(df)):>9,}/{len(df):,} 行", flush=True)
     db_rows = db.execute(select(func.count()).select_from(table)).scalar()
     return len(df), db_rows
 
@@ -92,6 +110,15 @@ def warn_source_stats(db) -> None:
                   f"raw_trajectory 实测 {got[0]} 点/{got[1]} 车（按原样入库，未改写）")
 
 
+def speed_up(engine) -> None:
+    """SQLite 批量导入提速：WAL + 不全盘 fsync。MySQL 侧不动任何 pragma。"""
+    if engine.url.get_backend_name() != "sqlite":
+        return
+    with engine.begin() as con:
+        con.exec_driver_sql("PRAGMA journal_mode=WAL")
+        con.exec_driver_sql("PRAGMA synchronous=NORMAL")
+
+
 def main() -> int:
     if not settings.raw_dir.is_dir():
         print(f"[失败] 原始数据目录不存在：{settings.raw_dir}")
@@ -102,27 +129,30 @@ def main() -> int:
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    speed_up(engine)
 
+    t0 = time.perf_counter()
     db = SessionLocal()
     report = []
     try:
         for table in Base.metadata.sorted_tables:
+            tc = time.perf_counter()
             csv_rows, db_rows = import_table(db, table)
-            report.append((table.name, csv_rows, db_rows))
+            report.append((table.name, csv_rows, db_rows, time.perf_counter() - tc))
         warn_source_stats(db)
     finally:
         db.close()
 
     print()
-    print(f"{'表名':<18}{'CSV 行数':>10}{'入库行数':>10}")
+    print(f"{'表名':<18}{'CSV 行数':>10}{'入库行数':>10}{'秒':>8}")
     mismatched = []
-    for name, csv_rows, db_rows in report:
-        print(f"{name:<18}{csv_rows:>10}{db_rows:>10}" + ("" if csv_rows == db_rows else "  ← 不一致"))
+    for name, csv_rows, db_rows, secs in report:
+        print(f"{name:<18}{csv_rows:>10}{db_rows:>10}{secs:>8.1f}" + ("" if csv_rows == db_rows else "  ← 不一致"))
         if csv_rows != db_rows:
             mismatched.append(name)
 
-    total = sum(rows for _, rows, _ in report)
-    print(f"\n共 {len(report)} 张表 / {total} 行")
+    total = sum(csv_rows for _, csv_rows, _, _ in report)
+    print(f"\n共 {len(report)} 张表 / {total:,} 行 / 用时 {time.perf_counter() - t0:.1f}s")
     if mismatched:
         print(f"[失败] 以下表入库行数与 CSV 不符：{mismatched}")
         return 1
