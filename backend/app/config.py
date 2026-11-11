@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # ---- 指标口径 ----
     metrics_window: str = "5min"          # road_metrics 落表粒度（需求硬规定）
     dashboard_window: str = "1h"          # 大屏展示粒度：5min 快照只有 14 条路有数据，Top10 排不满
-    congestion_threshold: float = 0.5     # 拥堵指数超过此值记为拥堵路段
+    congestion_threshold: float = 0.25    # 拥堵指数超过此值记为拥堵路段（需求口径下指数全网最高 0.510，0.5 会只剩 1 条路段过线）
     min_points_for_speed: int = 5         # 窗内样本下限，不足则不出均速
     trim_ratio: float = 0.10              # 截尾均值比例
     free_flow_days: int = 7               # 自由流速度回看天数
