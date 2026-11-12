@@ -41,10 +41,22 @@ class Settings(BaseSettings):
     # 否则停放会被当成隧道丢失，轨迹段也会串。
 
     # ---- HMM 地图匹配参数（以任务截图为准：σ=20m, β=π/4）----
+    # 注意：这组 hmm_* 目前只被 scripts/seed_data.py 造数据用，
+    # 真正跑匹配的引擎读下面的 match_*，两套不要混用。
     hmm_search_radius_m: float = 50.0     # 候选路段搜索半径 R
     hmm_sigma_m: float = 20.0             # 观测高斯标准差 σ
     hmm_beta: float = 0.7853981633974483  # 转移指数 β = π/4
     hmm_transition_prob: float = 0.01     # 无路匹配的概率
+
+    # ---- 地图匹配引擎（需求第 44-49 行：候选生成 + 高斯观测 + 指数转移 + 维特比）----
+    match_threshold_m: float = 100.0       # 页面默认垂距阈值，超过判为未匹配
+    match_sigma_m: float = 30.0            # 观测概率 σ（需求第 46 行）
+    match_beta_m: float = 30.0             # 转移概率 β（需求第 47 行）
+    match_max_candidates: int = 5          # 每点最多候选路段数（需求第 45 行）
+    match_candidate_radius_m: float = 200.0  # 候选搜索半径（含漂移点容错）
+    match_direction_weight: float = 0.4    # 方向一致性权重（对数空间，仅打破同距平局）
+    match_level_weight: float = 0.15       # 道路等级权重（同距优先主干道）
+    match_cache_dir: Path = BASE_DIR / "out" / "match_cache"  # 全量匹配结果缓存
 
     # ---- 指标口径 ----
     metrics_window: str = "5min"          # road_metrics 落表粒度（需求硬规定）

@@ -1,0 +1,136 @@
+/* 地图匹配页：三层可视化 + 车辆统计表，配色沿用全局主题（浅蓝 + 白卡片） */
+
+.match-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.match-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.match-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2329;
+  line-height: 24px;
+}
+
+.match-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 18px;
+}
+
+.match-card .ant-card-body {
+  padding-top: 16px;
+}
+
+.match-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.match-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #4a5a68;
+}
+
+.match-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.match-legend-item.is-off {
+  opacity: 0.35;
+}
+
+.match-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.match-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.match-status b {
+  color: #1f2329;
+  font-weight: 600;
+}
+
+.match-chart-foot,
+.match-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.match-foot {
+  margin-top: 12px;
+}
+
+.match-vehicle-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.match-source-tag {
+  margin-inline-end: 0;
+  font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.match-rate-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.match-rate-cell .ant-progress {
+  flex: 1;
+  margin: 0;
+}
+
+.match-rate-text {
+  min-width: 44px;
+  text-align: right;
+  color: #595959;
+}
+
+.match-row-active > td {
+  background: #eaf5ff !important;
+}
+
+.match-card .ant-table-row {
+  cursor: pointer;
+}

@@ -27,6 +27,7 @@ __pycache__/
 *.pyc
 
 # 后端运行期落盘的数据不上传，只保留空目录
+/backend/out/
 /backend/data/uploads/*
 !/backend/data/uploads/.gitkeep
 /backend/traffic.db

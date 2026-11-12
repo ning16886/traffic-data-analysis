@@ -1,11 +1,14 @@
 import { api } from './client'
 
-// 接口路径目前是草案，以后端 Swagger（http://localhost:8000/docs）为准。
+// 接口契约见 backend/app/schemas/match.py，Swagger：http://127.0.0.1:8000/docs
 
 export const listVehicles = (params) => api.get('/match/vehicles', params)
 
-export const getMatchResult = (vehicleId, params) => api.get(`/match/${vehicleId}`, params)
+export const getTrack = (vehicleId, params) =>
+  api.get(`/match/tracks/${encodeURIComponent(vehicleId)}`, params)
 
-export const getMatchRate = (vehicleId) => api.get(`/match/${vehicleId}/rate`)
+export const runMatch = (body) => api.post('/match/run', body)
 
-export const rematch = (vehicleId) => api.post(`/match/${vehicleId}/rematch`)
+// 导出走浏览器直下，不经 fetch（避免把 1MB CSV 塞进内存再转 Blob）
+export const exportTrackUrl = (vehicleId, threshold) =>
+  `/api/match/tracks/${encodeURIComponent(vehicleId)}/export?threshold=${threshold}`

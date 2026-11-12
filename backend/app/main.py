@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core import init_database, register_exception_handlers, settings, success
-from app.routers import dashboard
+from app.routers import dashboard, match
 
 
 @asynccontextmanager
@@ -46,6 +46,7 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(dashboard.router, prefix="/api")
+app.include_router(match.router, prefix="/api")
 
 
 @app.get("/api/health", tags=["系统"])
