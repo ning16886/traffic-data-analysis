@@ -15,8 +15,8 @@
 | 已完成 | **M1–M6、UI1–UI3 全部已验收**：完整 OD 功能及前端精简／风格统一；历史 31 项后端测试通过，本轮构建与 14 组真实浏览器回归通过 |
 | 当前业务模块 | 前端改造已完成，等待用户查看视觉效果；没有未完成的开发或验收项 |
 | 已验收业务模块 | M1、M2、M3、M4、M5、M6；维护阶段 UI1、UI2、UI3 |
-| 本轮范围 | 用户已明确授权识别文件并提交／推送到 feature/zhangwenye；只上传 OD 交付文件，禁止推送 main |
-| 下一次第一步 | 阅读本文及第 10 节上传记录 → 核对分支／工作区及远端提交 → 若上传尚未完成则继续目标 feature 分支的上传与核验；不重新导入数据 |
+| 本轮范围 | 已将 25 个 OD 交付文件提交并推送到 feature/zhangwenye，main 保持原提交；认证问题与上传结果见第 10 节 |
+| 下一次第一步 | 完整阅读本文及第 10 节 → 核对 feature/zhangwenye 与上游同步状态 → 根据用户反馈继续 OD 维护；剩余重复数据／需求副本仅留本地，不重新导入、不改 main |
 
 ### 每次恢复工作的流程
 
@@ -501,4 +501,11 @@ Top20 OD 对
 - 不上传：data/raw/raw/ 八个重复 CSV、根目录项目需求markdown版.md 副本；.venv、node_modules、dist、数据库、日志、截图、报告和本地浏览器依赖。保留用户原文件，不删除、不使用 git add .。
 - 验证依据：UI3 最终构建及 14 组浏览器回归、原始库／文件保护检查已通过，上传阶段不修改业务代码；本轮检查暂存清单、敏感文件与内容、git diff --cached --check、提交和远端引用，不为提交重复计算或重建数据库。
 - 计划命令：只对明确清单 git add；git commit；带分支守卫执行 git push -u origin HEAD:refs/heads/feature/zhangwenye。不使用 force、mirror 或推送 main 的 refspec。
-- 当前状态：文件已识别，准备暂存／提交／推送；成功必须由实际远端提交编号匹配证明，不能把本段计划视为上传完成。
+- 准备阶段状态（历史）：文件已识别，准备暂存／提交／推送；成功必须由实际远端提交编号匹配证明，不能把本段计划视为上传完成。
+- 实际已完成：25 文件显式暂存、清单／大小／凭据模式／空白检查通过；本地提交 139ad0c9356c9dcec2edb20222ddf04d0deb197d（feat(od): implement OD analysis and independent recomputation）已创建。只有重复 CSV 目录和根目录需求副本未跟踪，未提交任何运行产物。
+- 推送尚未完成：显式 feature refspec 的 git push 返回 Invalid username or token（退出码 128）。已连接 GitHub 账号 fae35ead 的仓库权限查询显示 push=true，但实际 create_tree 返回 403 Resource not accessible by integration，因此没有创建远端树／提交／分支；本地提交与分支未改写。此处是服务端认证／应用权限错误，不是代码失败，也不是自动审批拒绝。
+- 恢复动作：使用已安装 Git Credential Manager 为现有 fae35ead 账号启动浏览器重新登录，等待用户完成认证；成功后仅重试 HEAD:refs/heads/feature/zhangwenye，并核对 main 仍为上传前 SHA。不请求用户提供密码／令牌，不输出存储凭据，不清空现有凭据。
+- **上传已完成**：git credential-manager github login --username fae35ead --browser --force 最终退出码 0。重新执行 git push -u origin HEAD:refs/heads/feature/zhangwenye 成功（退出码 0），创建远端 feature/zhangwenye，并建立本地上游追踪；没有使用强制推送。
+- 远端核验：git ls-remote 确认功能提交为 139ad0c9356c9dcec2edb20222ddf04d0deb197d，与本地功能提交一致；main 仍为 0c354e9e89cf94d6dddd7be1c666a579f0ad5803，上传前后未变。
+- 本次 25 文件清单核对通过，提交不含数据库／环境／构建／日志／截图／重复 CSV／需求副本。本段追加的认证与成功记录另作纯文档提交，同样仅推送 feature/zhangwenye；业务代码不再改动，不重复执行业务计算。
+- 已解决问题 P19：旧 Git 凭据失效、已连接 GitHub 应用缺写权限；最终通过现有账号的 Git Credential Manager 浏览器重新认证解决。恢复时优先确认本地／远端 feature 同步；不应因认证错误重做业务或更换 main。
