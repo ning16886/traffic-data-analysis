@@ -1,7 +1,8 @@
 """OD 矩阵表：起止路段 × 时间段一行。
 
-time_period 只有三个取值（morning_peak / evening_peak / normal），
-按出行分段的首末路段统计，三元组唯一，重算走 upsert。
+原始模拟数据包含 morning_peak / evening_peak / normal / transit 四类，
+起终路段与类别三元组唯一。OD 子页面只读保留此表；手动重算写独立快照，
+见 computed_od.py，不能用重算覆盖这里的导入结果。
 
 这里不给 road_id 加外键：OD 的路段来自匹配结果，允许路网更新后留下
 历史孤儿行，跟 init_db.sql 保持一致。
@@ -26,7 +27,7 @@ class OdMatrix(Base):
     origin_road_id: Mapped[str] = mapped_column(String(10), nullable=False)
     dest_road_id: Mapped[str] = mapped_column(String(10), nullable=False)
     time_period: Mapped[str] = mapped_column(
-        String(20), nullable=False, comment="morning_peak/evening_peak/normal"
+        String(20), nullable=False, comment="morning_peak/evening_peak/normal/transit"
     )
     trip_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     avg_duration_min: Mapped[float | None] = mapped_column(Float)
