@@ -28,6 +28,7 @@ pyarrow>=17                       # trajectory_parser 解析 Parquet
 scikit-learn>=1.5                 # hotzone_service 的 DBSCAN 聚类
 scipy>=1.14                       # 空间距离与稀疏矩阵运算
 shapely>=2.0                      # road_loader 解析 WKT LINESTRING / GeoJSON、候选路段查询
+pyproj>=3.6                       # hotzone_service 把经纬度投到 UTM 50N，DBSCAN 的 ε 才是米
 
 # ---- 定时调度（app/services/scheduler.py）----
 APScheduler~=3.10

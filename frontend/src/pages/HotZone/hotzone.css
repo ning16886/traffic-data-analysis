@@ -1,0 +1,59 @@
+.hotzone-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.hotzone-hint,
+.hotzone-foot {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.hotzone-foot {
+  margin-top: 8px;
+}
+
+.hotzone-cards {
+  margin-bottom: 12px;
+}
+
+.hotzone-map-row {
+  margin-bottom: 16px;
+}
+
+.hotzone-detail-card,
+.hotzone-table-card {
+  height: 100%;
+}
+
+.hotzone-detail {
+  margin-top: 20px;
+}
+
+.hotzone-detail .ant-descriptions-item-label {
+  color: #8c8c8c;
+  width: 88px;
+}
+
+.hotzone-id {
+  font-family: Consolas, Monaco, monospace;
+  color: #0f6bb0;
+}
+
+.hotzone-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.hotzone-row-selected {
+  background: #e6f4ff !important;
+}
+
+.hotzone-row-selected:hover {
+  background: #bae0ff !important;
+}
