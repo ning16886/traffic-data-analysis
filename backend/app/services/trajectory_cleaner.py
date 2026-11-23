@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -194,6 +194,8 @@ def read_raw(
 ) -> pd.DataFrame:
     conds = []
     params: dict[str, object] = {}
+    # IN 列表必须用 expanding bindparam 声明，否则 SQLAlchemy 会把整个列表当成一个 ? 参数
+
     if source_ids:
         conds.append("source_id IN :sources")
         params["sources"] = list(source_ids)
@@ -202,6 +204,10 @@ def read_raw(
         params["vehicles"] = list(vehicle_ids)
     where = ("WHERE " + " AND ".join(conds)) if conds else ""
     sql = text(READ_SQL.format(where=where))
+    if "sources" in params:
+        sql = sql.bindparams(bindparam("sources", expanding=True))
+    if "vehicles" in params:
+        sql = sql.bindparams(bindparam("vehicles", expanding=True))
     return pd.read_sql(sql, db.bind, params=params)
 
 
@@ -209,6 +215,9 @@ def save_clean(df: pd.DataFrame, db: Session, chunk_rows: int = 50_000, reset: b
     if reset:
         db.execute(text("DELETE FROM clean_trajectory"))
         db.commit()
+    df = df.copy()
+    # read_sql 视驱动不同可能把 timestamp 带回字符串，统一转成 datetime 再写库
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
     recs = df.to_dict("records")
     for r in recs:
         r["timestamp"] = r["timestamp"].to_pydatetime()
@@ -247,9 +256,12 @@ def run_cleaning(
             if vehicle_ids:
                 conds.append("vehicle_id IN :v")
                 params["v"] = list(vehicle_ids)
-            db.execute(
-                text("DELETE FROM clean_trajectory WHERE " + " AND ".join(conds)), params
-            )
+            delete_sql = text("DELETE FROM clean_trajectory WHERE " + " AND ".join(conds))
+            # IN 列表同样需要 expanding 声明
+            for key in ("s", "v"):
+                if key in params:
+                    delete_sql = delete_sql.bindparams(bindparam(key, expanding=True))
+            db.execute(delete_sql, params)
             db.commit()
             stats["written"] = save_clean(clean, db, reset=False)
         else:

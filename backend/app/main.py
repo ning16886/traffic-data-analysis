@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core import init_database, register_exception_handlers, settings, success
-from app.routers import dashboard, match
+from app.routers import dashboard, data_source, match, road, trajectory
 
 
 @asynccontextmanager
@@ -46,6 +46,9 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(dashboard.router, prefix="/api")
+app.include_router(data_source.router, prefix="/api")
+app.include_router(trajectory.router, prefix="/api")
+app.include_router(road.router, prefix="/api")
 app.include_router(match.router, prefix="/api")
 
 

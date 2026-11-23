@@ -1,0 +1,73 @@
+/* 路段分析页：拥堵条 + 选中行 + 右侧详情面板 */
+
+.road-congestion-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.road-congestion-track {
+  flex: 1;
+  max-width: 120px;
+  height: 10px;
+  border-radius: 5px;
+  background: #f0f1f4;
+  overflow: hidden;
+}
+
+.road-congestion-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+.road-congestion-num {
+  min-width: 36px;
+  text-align: right;
+  color: #4a5a68;
+  font-size: 13px;
+}
+
+.road-row-selected td {
+  background: #fff1f0 !important;
+}
+
+.road-id-selected {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.road-detail-panel {
+  padding: 4px 8px;
+}
+
+.road-detail-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2329;
+  margin-bottom: 4px;
+}
+
+.road-detail-name {
+  color: #7a8599;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.road-detail-desc {
+  margin-bottom: 16px;
+}
+
+.road-detail-legend p {
+  color: #7a8599;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}

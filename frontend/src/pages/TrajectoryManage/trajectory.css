@@ -1,0 +1,31 @@
+/* 轨迹管理页：清洗统计四个数字框 */
+.clean-stat-box {
+  background: #f7f8fa;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.clean-stat-title {
+  color: #7a8599;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.clean-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2329;
+}
+
+.clean-stat-suffix {
+  font-size: 13px;
+  font-weight: 400;
+  color: #7a8599;
+  margin-left: 4px;
+}
+
+.clean-stat-foot {
+  margin-top: 12px;
+  color: #7a8599;
+  font-size: 12px;
+}
