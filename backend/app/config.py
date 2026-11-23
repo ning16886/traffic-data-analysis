@@ -66,6 +66,17 @@ class Settings(BaseSettings):
     trim_ratio: float = 0.10              # 截尾均值比例
     free_flow_days: int = 7               # 自由流速度回看天数
 
+    # ---- 出行热区（DBSCAN，需求第 66-69 行）----
+    hotzone_dbscan_eps_m: float = 500.0        # ε：UTM 米制空间里的邻域半径
+    hotzone_min_samples: int = 10              # DBSCAN 核心点样本下限
+    hotzone_min_points: int = 15               # 成簇后进入结果表的点数下限（去噪点）
+    hotzone_max_zones: int = 300               # 与 seed_data.py 默认一致
+    hotzone_slow_sample_ratio: float = 0.20    # 中速点（6~12km/h）抽样比例
+    hotzone_seed: int = 20240304               # 抽样固定种子，重算可复现
+    hotzone_transit_radius_m: float = 700.0    # 距环线枢纽锚点多近算交通枢纽
+    hotzone_business_half_width_m: float = 2600.0
+    hotzone_business_half_height_m: float = 1700.0
+
     # ---- 定时调度 ----
     metrics_interval_minutes: int = 5
     od_interval_minutes: int = 60
