@@ -23,6 +23,7 @@ data/raw/*.csv.gz
 !/docs/项目演示结果.mp4
 
 # Python 运行产物
+.venv/
 __pycache__/
 *.pyc
 
@@ -34,6 +35,7 @@ __pycache__/
 /backend/traffic.db-wal
 /backend/traffic.db-shm
 /backend/traffic.db-journal
+/backend/data/od-dev/
 
 # 本地运行日志与临时文件不上传
 *.tmp

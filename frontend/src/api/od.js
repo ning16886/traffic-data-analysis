@@ -1,7 +1,11 @@
 import { api } from './client'
 
-// 接口路径目前是草案，以后端 Swagger（http://localhost:8000/docs）为准。
-
 export const listOdMatrix = (params) => api.get('/od/list', params)
 
+export const getOdMatrix = (params) => api.get('/od/matrix', params)
+
 export const getTopOdPairs = (params) => api.get('/od/top', params)
+
+export const getOdComputation = () => api.get('/od/computation')
+
+export const recomputeOd = () => api.post('/od/recompute')
