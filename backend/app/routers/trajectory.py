@@ -115,7 +115,7 @@ def rerun_clean(payload: CleanPayload | None = None, db: Session = Depends(get_d
     source_ids = None
     if payload and payload.source_id is not None:
         if db.get(DataSource, payload.source_id) is None:
-            raise BusinessException(404, f"数据源 {payload.source_id} 不存在")
+            raise BusinessException(f"数据源 {payload.source_id} 不存在", code=4040)
         source_ids = [payload.source_id]
     stats = run_cleaning(db, source_ids=source_ids)
     return success(stats)

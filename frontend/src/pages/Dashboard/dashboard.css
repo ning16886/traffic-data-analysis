@@ -8,6 +8,19 @@
   margin-bottom: 12px;
 }
 
+.dashboard-day-line {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.dashboard-day-line strong {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .dashboard-meta {
   display: flex;
   justify-content: space-between;

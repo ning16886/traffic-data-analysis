@@ -249,10 +249,26 @@ def _time_range(db: Session) -> tuple[str | None, str | None]:
     )
 
 
+def _available_days(windows: pd.DataFrame) -> list[pd.Timestamp]:
+    """数据覆盖到的所有自然日（升序），大屏 30 秒轮播的切换序列。"""
+    if windows.empty:
+        return []
+    return sorted(windows["window"].dt.normalize().unique())
+
+
 def build_summary(db: Session, top_n: int = 10) -> dict:
     windows = build_windows(db)
     day = _data_day(windows)
     start, end = _time_range(db)
+    # 按天预计算：前端 30 秒切一天轮播，无需每天重新请求后端。
+    days = [
+        {
+            "day": d.strftime("%Y-%m-%d"),
+            "cards": _cards(db, windows, d),
+            "top_congested": _top_congested(windows, top_n, d),
+        }
+        for d in _available_days(windows)
+    ]
     return {
         "data_date": start[:10] if start else None,
         "time_range": {"start": start, "end": end},
@@ -262,5 +278,6 @@ def build_summary(db: Session, top_n: int = 10) -> dict:
         "top_n": top_n,
         "cards": _cards(db, windows, day),
         "top_congested": _top_congested(windows, top_n, day),
+        "days": days,
         "data_sources": _data_sources(db),
     }

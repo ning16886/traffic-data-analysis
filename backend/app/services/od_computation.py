@@ -63,7 +63,7 @@ def calculate_records(db: Session) -> tuple[list[dict], dict]:
     trips = trips.loc[trips.duration.gt(0)].copy()
     hours = trips.started.dt.hour
     trips["time_period"] = np.select(
-        [hours.ge(7) & hours.lt(10), hours.ge(17) & hours.lt(20)],
+        [hours.between(7, 9), hours.between(17, 19)],
         ["morning_peak", "evening_peak"], default="normal",
     )
     result = trips.groupby(["origin_road_id", "dest_road_id", "time_period"], as_index=False).agg(

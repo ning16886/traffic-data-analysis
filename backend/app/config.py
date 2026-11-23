@@ -36,9 +36,7 @@ class Settings(BaseSettings):
     stay_seconds: int = 120               # 停留持续时长下限
     stay_radius_m: float = 30.0           # 停留位移半径上限（文档写的 30m）
     gap_seconds: int = 180                # 相邻点间隔超过此值判为隧道丢失（段内）
-    trip_break_seconds: int = 400         # 间隔超过此值视为另一次出行，先分段再判空洞
-    # 分段阈值必须落在「隧道空洞 200~250s」与「车辆停放 ≥600s」之间，
-    # 否则停放会被当成隧道丢失，轨迹段也会串。
+    trip_break_seconds: int = 300         # 间隔超过此值视为另一次出行，先分段再判空洞（需求第 36 行：> 300s 切分）
 
     # ---- HMM 地图匹配参数（以任务截图为准：σ=20m, β=π/4）----
     # 注意：这组 hmm_* 目前只被 scripts/seed_data.py 造数据用，

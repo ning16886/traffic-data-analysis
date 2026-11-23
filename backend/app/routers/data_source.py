@@ -29,10 +29,10 @@ def list_data_sources(db: Session = Depends(get_db)):
 def switch_status(source_id: int, payload: StatusPayload, db: Session = Depends(get_db)):
     """启停切换。停用的数据源不再参与后续清洗与匹配调度。"""
     if payload.status not in (0, 1):
-        raise BusinessException(400, "status 只能是 0（停用）或 1（启用）")
+        raise BusinessException("status 只能是 0（停用）或 1（启用）", code=4000)
     row = db.get(DataSource, source_id)
     if row is None:
-        raise BusinessException(404, f"数据源 {source_id} 不存在")
+        raise BusinessException(f"数据源 {source_id} 不存在", code=4040)
     row.status = payload.status
     db.commit()
     return success({"id": row.id, "status": row.status})

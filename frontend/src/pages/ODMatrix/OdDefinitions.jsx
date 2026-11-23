@@ -32,7 +32,7 @@ export default function OdDefinitions({ matrix, computation }) {
     rootClassName="od-definitions-popup" content={
       <section id={contentId} className="od-definitions" aria-label="统计口径详情">
         <dl>
-          <dt>时段</dt><dd>早高峰 [07:00, 10:00)，晚高峰 [17:00, 20:00)，其余为平峰。</dd>
+          <dt>时段</dt><dd>早高峰 7-9 时，晚高峰 17-19 时，其余为平峰。</dd>
           <dt>结果来源</dt><dd>原始模拟结果包含接驳分类；轨迹重算按首个有效匹配点划分时段，不含接驳标记。重算仅替换上次快照，保留原始结果。</dd>
           <dt>重点路段矩阵</dt><dd>按出发量、到达量各选最多 20 个路段；行是起点，列是终点，单位为次。</dd>
           <dt>当前覆盖</dt><dd data-testid="od-matrix-coverage">{matrix

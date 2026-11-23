@@ -97,7 +97,7 @@ def adjacent_roads(road_id: str, db: Session = Depends(get_db)):
     try:
         num = int(road_id[1:])  # R00067 → 67
     except ValueError:
-        raise BusinessException(400, "路段编号格式应为 R + 数字")
+        raise BusinessException("路段编号格式应为 R + 数字", code=4000)
     ids = [f"R{num - 1:05d}", f"R{num + 1:05d}"]
     rows = db.execute(select(RoadSegment).where(RoadSegment.road_id.in_(ids))).scalars().all()
 
@@ -127,7 +127,7 @@ def road_detail(road_id: str, db: Session = Depends(get_db)):
         select(RoadSegment).where(RoadSegment.road_id == road_id)
     ).scalar_one_or_none()
     if seg is None:
-        raise BusinessException(404, f"路段 {road_id} 不存在")
+        raise BusinessException(f"路段 {road_id} 不存在", code=4040)
 
     windows = dashboard_service.build_windows(db)
     detail = {

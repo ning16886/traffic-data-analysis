@@ -8,6 +8,8 @@ import './dashboard.css'
 
 const LEVEL_LABELS = { highway: '高速公路', main: '主干道', secondary: '次干道', branch: '支路' }
 
+const REFRESH_INTERVAL = 30000 // 需求第 77 行：30 秒自动轮播到下一天
+
 function useSummary() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -27,6 +29,16 @@ function useSummary() {
   }, [load])
 
   return { data, loading, error, reload: load }
+}
+
+// 从 data.days 里按索引取当前播放日；days 为空时回退到 data 本身的末日口径
+function pickDay(data, index) {
+  const days = data?.days
+  if (!Array.isArray(days) || days.length === 0) {
+    return { cards: data?.cards, top_congested: data?.top_congested, day: data?.cards?.data_day }
+  }
+  const day = days[((index % days.length) + days.length) % days.length]
+  return { cards: day.cards, top_congested: day.top_congested, day: day.day }
 }
 
 const CARD_COLORS = {
@@ -92,18 +104,17 @@ function MetricCards({ cards, threshold }) {
   )
 }
 
-function CongestionTop({ data }) {
-  const { threshold, cards } = data
+function CongestionTop({ topCongested, cards, threshold, topN, day }) {
   return (
-    <Card title={`拥堵路段 Top${data.top_n}`} className="dashboard-full-card">
-      {data.top_congested.length === 0 ? (
+    <Card title={`拥堵路段 Top${topN}`} className="dashboard-full-card">
+      {topCongested.length === 0 ? (
         <div className="dashboard-metric-foot">当前数据里没有任何路段指标</div>
       ) : (
-        <CongestionBar rows={data.top_congested} threshold={threshold} levelLabels={LEVEL_LABELS} />
+        <CongestionBar rows={topCongested} threshold={threshold} levelLabels={LEVEL_LABELS} />
       )}
       <div className="dashboard-foot">
         <span>
-          排名基数：{cards.data_day} 当日有达标指标的 {cards.today_covered_road_count} /{' '}
+          排名基数：{day} 当日有达标指标的 {cards.today_covered_road_count} /{' '}
           {cards.total_road_count} 条路段，每条路段取当日最堵的一窗
         </span>
         <span>
@@ -146,15 +157,21 @@ function SourceTable({ data }) {
   return (
     <Card title="数据源统计" className="dashboard-full-card">
       <Table rowKey="id" size="small" pagination={false} columns={sourceColumns} dataSource={data.data_sources} />
-      <div className="dashboard-foot">
-        <span>统计口径：raw_trajectory 按 source_id 实测计数</span>
-      </div>
     </Card>
   )
 }
 
 export default function Dashboard() {
   const { data, loading, error, reload } = useSummary()
+  const [dayIndex, setDayIndex] = useState(0)
+
+  // 数据到位后，每 30 秒把「当前播放日」往后切一天，循环轮播
+  useEffect(() => {
+    const total = data?.days?.length || 0
+    if (total <= 1) return
+    const timer = setInterval(() => setDayIndex((i) => (i + 1) % total), REFRESH_INTERVAL)
+    return () => clearInterval(timer)
+  }, [data])
 
   if (error) {
     return (
@@ -180,6 +197,8 @@ export default function Dashboard() {
     )
   }
 
+  const { cards, top_congested: topCongested, day } = pickDay(data, dayIndex)
+
   return (
     <div>
       <div className="dashboard-toolbar">
@@ -190,21 +209,27 @@ export default function Dashboard() {
         </Tooltip>
       </div>
 
+      <div className="dashboard-day-line">
+        正在播放 <strong>{day}</strong> 数据（每 30 秒自动切到下一天）
+      </div>
+
       <div className="dashboard-meta">
         <span>
           数据区间 {data.time_range.start?.slice(0, 16)} – {data.time_range.end?.slice(0, 16)}
         </span>
-        <span>
-          四张卡与 Top{data.top_n} 口径：数据末日 {data.cards.data_day}，底层 {data.metrics_window} 指标聚合到{' '}
-          {data.window} 展示
-        </span>
       </div>
 
-      <MetricCards cards={data.cards} threshold={data.threshold} />
+      <MetricCards cards={cards} threshold={data.threshold} />
 
       <Row gutter={16}>
         <Col span={14}>
-          <CongestionTop data={data} />
+          <CongestionTop
+            topCongested={topCongested}
+            cards={cards}
+            threshold={data.threshold}
+            topN={data.top_n}
+            day={day}
+          />
         </Col>
         <Col span={10}>
           <SourceTable data={data} />
