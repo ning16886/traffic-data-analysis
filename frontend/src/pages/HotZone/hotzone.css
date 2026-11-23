@@ -20,6 +20,16 @@
   margin-bottom: 12px;
 }
 
+/* 强制四张统计卡等宽（各占 1/4），内容长短不影响卡片宽度 */
+.hotzone-cards > .ant-col {
+  flex: 0 0 25% !important;
+  max-width: 25% !important;
+}
+
+.hotzone-cards .ant-card {
+  height: 100%;
+}
+
 .hotzone-map-row {
   margin-bottom: 16px;
 }
