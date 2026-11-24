@@ -29,3 +29,21 @@
   color: #7a8599;
   font-size: 12px;
 }
+
+/* 数据源表格展开行：每一类车型自己的清洗统计 */
+.source-clean-panel {
+  padding: 4px 8px 8px;
+}
+
+.source-clean-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 12px;
+}
+
+/* 分车型统计用白底描边，与上方灰底的全量统计在视觉上区分 */
+.source-clean-panel .clean-stat-box {
+  background: #fff;
+  border: 1px solid #e8ecf2;
+}

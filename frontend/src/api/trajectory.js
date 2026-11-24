@@ -10,15 +10,15 @@ export const updateDataSource = (id, data) => api.put(`/data_source/${id}`, data
 
 export const deleteDataSource = (id) => api.del(`/data_source/${id}`)
 
-export const switchDataSourceStatus = (id, status) =>
-  api.put(`/data_source/${id}/status`, { status })
-
 export const listTrajectories = (params) => api.get('/trajectory/list', params)
 
 export const getCleanConfig = () => api.get('/trajectory/clean-config')
 
 export const saveCleanConfig = (data) => api.put('/trajectory/clean-config', data)
 
-export const rerunClean = () => api.post('/trajectory/clean')
+// 不传参数=全量重跑；传 { source_id } 时只重跑该数据源（后端会先删掉该源的旧清洗行）
+export const rerunClean = (payload) => api.post('/trajectory/clean', payload)
 
-export const getCleanCompare = () => api.get('/trajectory/clean-compare')
+// 不传参数=全量清洗统计；传 sourceId 时只取该数据源自己的清洗统计
+export const getCleanCompare = (sourceId) =>
+  api.get('/trajectory/clean-compare', sourceId == null ? undefined : { source_id: sourceId })

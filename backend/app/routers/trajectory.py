@@ -82,23 +82,47 @@ def list_trajectories(
 
 
 @router.get("/clean-compare")
-def clean_compare(db: Session = Depends(get_db)):
+def clean_compare(
+    db: Session = Depends(get_db),
+    source_id: int | None = Query(None, ge=1, description="不传=全量，传=只统计该数据源"),
+):
     """清洗前后对比统计，轨迹管理页「清洗统计」卡片的数据来源。
 
     丢弃点数 = 原始点数 − 清洗后点数（只有漂移点会被删除，停留/隧道只打标记）。
     清洗阶段 = 轨迹分段数（segment_id 去重），即「切成了多少段」。
+
+    传 source_id 时按数据源过滤，供轨迹管理页为每一类车型分别加载自己的统计；
+    不传时保持全量口径，原有调用方不受影响。两张轨迹表都带 source_id 外键，
+    因此六个指标可以直接加 where 条件，不需要关联车辆表。
     """
-    raw_count = db.scalar(select(func.count()).select_from(RawTrajectory)) or 0
-    clean_count = db.scalar(select(func.count()).select_from(CleanTrajectory)) or 0
-    stay_points = db.scalar(
-        select(func.count()).select_from(CleanTrajectory).where(CleanTrajectory.is_stay == 1)
-    ) or 0
-    gap_points = db.scalar(
-        select(func.count()).select_from(CleanTrajectory).where(CleanTrajectory.is_gap == 1)
-    ) or 0
-    segments = db.scalar(select(func.count(distinct(CleanTrajectory.segment_id)))) or 0
+    if source_id is not None and db.get(DataSource, source_id) is None:
+        raise BusinessException(f"数据源 {source_id} 不存在", code=4040)
+
+    raw_query = select(func.count()).select_from(RawTrajectory)
+    clean_query = select(func.count()).select_from(CleanTrajectory)
+    stay_query = select(func.count()).select_from(CleanTrajectory).where(
+        CleanTrajectory.is_stay == 1
+    )
+    gap_query = select(func.count()).select_from(CleanTrajectory).where(
+        CleanTrajectory.is_gap == 1
+    )
+    segment_query = select(func.count(distinct(CleanTrajectory.segment_id)))
+
+    if source_id is not None:
+        raw_query = raw_query.where(RawTrajectory.source_id == source_id)
+        clean_query = clean_query.where(CleanTrajectory.source_id == source_id)
+        stay_query = stay_query.where(CleanTrajectory.source_id == source_id)
+        gap_query = gap_query.where(CleanTrajectory.source_id == source_id)
+        segment_query = segment_query.where(CleanTrajectory.source_id == source_id)
+
+    raw_count = db.scalar(raw_query) or 0
+    clean_count = db.scalar(clean_query) or 0
+    stay_points = db.scalar(stay_query) or 0
+    gap_points = db.scalar(gap_query) or 0
+    segments = db.scalar(segment_query) or 0
     return success(
         {
+            "source_id": source_id,
             "raw_count": raw_count,
             "clean_count": clean_count,
             "dropped_count": raw_count - clean_count,

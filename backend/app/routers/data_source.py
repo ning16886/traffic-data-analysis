@@ -27,7 +27,13 @@ def list_data_sources(db: Session = Depends(get_db)):
 
 @router.put("/{source_id}/status")
 def switch_status(source_id: int, payload: StatusPayload, db: Session = Depends(get_db)):
-    """启停切换。停用的数据源不再参与后续清洗与匹配调度。"""
+    """只更新数据源登记状态，供页面标识展示。
+
+    注意：status 不参与清洗、匹配与统计的过滤。下游的 match_result 按点落表、
+    road_metrics 按路段与时间窗聚合、od_matrix 按起止路段与时段聚合，三张表都没有
+    数据源维度，因此停用一个数据源不会改变已落库的数据，也不会改变任何统计口径。
+    轨迹管理页已不提供启停入口，此接口仅保留登记状态维护能力。
+    """
     if payload.status not in (0, 1):
         raise BusinessException("status 只能是 0（停用）或 1（启用）", code=4000)
     row = db.get(DataSource, source_id)
